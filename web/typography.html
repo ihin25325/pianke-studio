@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>字体与排版 · 片刻</title>
+  <link rel="stylesheet" href="/web/style.css"><link rel="stylesheet" href="/web/typography.css">
+  <link rel="stylesheet" href="/web/speech.css">
+  <link rel="stylesheet" href="/web/font-library.css"><link rel="stylesheet" href="/web/studio.css">
+  <script src="/web/typography.js" defer></script>
+  <script src="/web/typography-presets.js" defer></script>
+</head>
+<body>
+  <div class="page-shell type-shell">
+    <header class="topbar"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-name">片刻 <span class="studio-brand-en">Studio</span></span><span class="brand-caption">字体与排版</span></a><a class="back-link" href="/">← 返回工作台</a></header>
+    <main>
+      <div class="type-heading"><div><p class="eyebrow">TYPE & LAYOUT</p><h1>字体与排版</h1><p>编辑文字，挑选字体，在左侧看实际成片效果。</p></div><span class="mode-pill" id="mode-label">批量默认样式</span></div>
+      <div class="type-message" id="message" role="status" hidden></div>
+      <div class="type-workspace">
+        <section class="preview-panel" aria-labelledby="preview-heading">
+          <div class="preview-heading"><h2 id="preview-heading">成片预览</h2><span id="preview-status" role="status">正在加载</span></div>
+          <div class="preview-canvas" id="preview-canvas"><div class="preview-placeholder" id="preview-placeholder">正在准备预览画面…</div><img id="preview-image" alt="当前文字与字体在成片中的实际效果" hidden></div>
+          <p id="preview-help">修改后自动更新，预览使用与导出相同的字体和排版。</p>
+          <p class="layout-warning" id="layout-warning" role="status" hidden></p>
+        </section>
+        <section class="type-controls panel" aria-labelledby="controls-heading">
+          <div class="controls-top"><h2 id="controls-heading">调整文字样式</h2><span id="save-state">加载中</span></div>
+          <div id="font-preset-bar" class="font-preset-bar" aria-label="字体风格搭配"></div>
+          <p class="save-help">品牌 Logo 模式开启时，上方品牌用图片显示，品牌字号和位置滑块仍可调节；要改回品牌文字字体，请到 <a href="/brand-assets">品牌素材库</a> 关闭 Logo。型号与简介字体不受影响。</p>
+          <div class="field"><label for="editing-target">正在编辑</label><select id="editing-target"><option value="">批量默认样式</option></select></div>
+          <section class="copy-section" aria-labelledby="copy-heading"><div class="copy-heading"><h3 id="copy-heading">示例文案</h3><span id="copy-note">只用于预览，不会替换每个商品的名称。</span></div>
+            <div class="copy-row"><div class="field"><label for="brand-text">品牌</label><input id="brand-text" maxlength="120" autocomplete="off"></div><div class="field"><label for="title-text">型号 / 标题</label><input id="title-text" maxlength="240" autocomplete="off"></div></div>
+            <div class="field"><label for="description-text">商品类别</label><input id="description-text" maxlength="180" autocomplete="off" placeholder="一句话说明是什么商品"></div>
+          </section>
+          <section class="speech-section" aria-labelledby="speech-heading">
+            <div class="copy-heading"><h3 id="speech-heading">语音字幕</h3><span>离线识别 · 不按 token 收费</span></div>
+            <label class="speech-switch"><input type="checkbox" id="subtitles-enabled"><span>将语音字幕烧录到新版视频</span></label>
+            <div class="field subtitle-target"><label for="subtitle-target">字幕输出</label><select id="subtitle-target"><option value="zh">中文字幕 · 本机免费翻译</option><option value="original">原语言字幕 · 不翻译</option></select></div>
+            <div class="speech-options"><div class="field"><label for="speech-language">原片语音语言</label><select id="speech-language"><option value="auto">自动识别</option><option value="zh">中文</option><option value="en">英语</option><option value="de">德语</option><option value="fr">法语</option><option value="es">西班牙语</option><option value="ja">日语</option><option value="ko">韩语</option><option value="it">意大利语</option><option value="ru">俄语</option><option value="pt">葡萄牙语</option></select></div><button type="button" class="secondary-button" id="recognize-speech" hidden>识别并翻译成中文</button></div>
+            <p class="speech-status" id="speech-status" role="status">正在检查本地模型…</p>
+            <progress id="speech-progress" max="100" value="0" hidden aria-label="语音识别进度"></progress>
+            <fieldset class="subtitle-position" id="subtitle-position">
+              <legend>字幕位置</legend>
+              <div class="subtitle-position-row">
+                <div class="field"><label for="subtitle-preset">快捷位置</label><select id="subtitle-preset"><option value="994">画面下方（原位置）</option><option value="780">画面中间</option><option value="590">画面上方</option><option value="custom">自定义位置</option></select></div>
+                <div class="field"><label for="subtitle-align">水平对齐</label><select id="subtitle-align"><option value="left">左对齐</option><option value="center">居中</option><option value="right">右对齐</option></select></div>
+              </div>
+              <div class="subtitle-y-heading"><label for="subtitle-y">上下位置</label><div><input id="subtitle-y" type="number" min="180" max="1380" step="1" value="994" inputmode="numeric" aria-describedby="subtitle-position-help"><span>px</span></div></div>
+              <label class="visually-hidden" for="subtitle-y-slider">字幕上下位置滑块</label><input id="subtitle-y-slider" type="range" min="180" max="1380" step="1" value="994">
+              <div class="adjust-ends"><span>向上</span><span>向下</span></div>
+              <p class="save-help" id="subtitle-position-help">以字幕底边定位，数值越大越靠下（1080×1440 画布）。可移到画面外的文字区，请留意重叠提示。</p>
+              <label class="subtitle-sample"><input type="checkbox" id="subtitle-sample" checked><span>没有字幕时显示位置示例（仅预览，不写入成片）</span></label>
+            </fieldset>
+            <details id="subtitle-details" hidden><summary>校对字幕与时间码（SRT）</summary><label class="visually-hidden" for="subtitle-srt">字幕文字与时间码</label><textarea id="subtitle-srt" maxlength="40000" spellcheck="false" placeholder="识别后显示字幕。可修改文字，请保留时间码。"></textarea><p class="save-help">品牌、型号建议人工校对。清空后生成新版会重新识别；关闭上方开关则不加语音字幕。</p></details>
+            <p class="save-help" id="speech-help">原声自动翻译成中文，中文原声直接识别；保留原声，不调用收费 API。旧视频选择「中文字幕」后重新识别、生成新版。品牌和专业词请校对。</p>
+          </section>
+          <div class="type-tabs" role="tablist" aria-label="选择要调整的文字">
+            <button type="button" role="tab" id="tab-brand" data-section="brand" aria-controls="panel-brand" aria-selected="false" tabindex="-1">顶部品牌</button>
+            <button type="button" role="tab" id="tab-title" data-section="title" aria-controls="panel-title" aria-selected="true">型号标题</button>
+            <button type="button" role="tab" id="tab-description" data-section="description" aria-controls="panel-description" aria-selected="false" tabindex="-1">商品类别</button>
+          </div>
+          <div id="section-panels"></div>
+          <div class="type-actions"><button type="button" class="reset-style" id="reset-style">恢复第 5 种默认</button><span>字号过大时会自动换行、适配文字区。</span></div>
+          <div class="save-actions"><button type="button" class="primary-button" id="save-default" disabled><span>保存为批量默认</span><span aria-hidden="true">✓</span></button><button type="button" class="primary-button" id="render-edited" hidden disabled><span>生成这条视频的新版</span><span aria-hidden="true">→</span></button></div>
+          <p class="save-help" id="save-help">保存字体与排版后，新添加的商品会自动使用；每个商品仍使用自己的名称和类别。</p>
+          <a class="result-link" id="result-link" href="/" hidden>查看新版视频的进度 →</a>
+        </section>
+      </div>
+    </main>
+    <footer><span>本地预览 · 无需 API · 不覆盖原成片</span><span>D:\剪辑视频自动化</span></footer>
+  </div>
+</body>
+</html>

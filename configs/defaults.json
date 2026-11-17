@@ -1,0 +1,18 @@
+{
+  "product_id": "demo",
+  "output_prefix": "demo",
+  "source": "sources/demo/source.mp4",
+  "allow_silent_output": true,
+  "brand_title": "DEMO",
+  "product_title": "Demo AX100",
+  "description_lines": ["商品展示"],
+  "font": "Source Han Sans CN",
+  "title_font": "Oswald",
+  "brand_font": "Oswald",
+  "description_font": "Source Han Sans CN",
+  "text_scale": 1.1,
+  "max_duration_seconds": 30,
+  "segments": [{"start": 0, "end": null}],
+  "source_references": {},
+  "text_review_note": "Synthetic demo only. Run scripts/demo.py to generate local media."
+}

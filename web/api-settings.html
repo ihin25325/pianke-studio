@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>接入 DeepSeek · 片刻 Studio</title><link rel="stylesheet" href="/web/font-library.css"><link rel="stylesheet" href="/web/api-settings.css"><script src="/web/api-settings.js" defer></script></head>
+<body><header><a class="brand" href="/">▰ 片刻 <span>Studio</span></a><a href="/">← 返回工作台</a></header><main>
+<div class="eyebrow">CONNECT YOUR AI</div><h1>一步一步，接入 DeepSeek。</h1><p class="lead">不用写代码。先保存密钥，再检查连接，最后试一条视频。</p>
+<div id="status" class="status" role="status">正在读取本机接入状态…</div>
+<div class="layout"><div class="steps">
+<section class="card"><div class="step-heading"><span class="number">01</span><div><h2>登录开放平台，创建密钥</h2><p>这里需要的是开放平台 API 密钥，不是聊天网站密码。</p></div></div>
+<ol><li>点击下方按钮，在 DeepSeek 官方开放平台登录或注册。</li><li>进入「API keys / API 密钥」，点击创建，名称可填「片刻工作台」。</li><li>复制生成的完整密钥。不要发到聊天里，直接粘贴到下面的本机入口。</li></ol>
+<a class="button secondary" href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">打开 DeepSeek 官方密钥页面 ↗</a><p class="hint">登录、验证码、支付和协议确认由你自己操作。先检查可用余额；不用为了连接检查立即充值，是否需要充值以官方控制台为准。</p></section>
+<section class="card"><div class="step-heading"><span class="number">02</span><div><h2>只在这台电脑上保存密钥</h2><p>保存不会向 DeepSeek 发请求，也不会生成视频。</p></div></div>
+<form id="key-form"><label for="api-key">DeepSeek API Key</label><input id="api-key" type="password" autocomplete="off" spellcheck="false" maxlength="512" placeholder="在这里粘贴完整密钥；已保存时留空即可保留"><div class="facts"><span>官方地址 <b>api.deepseek.com</b></span><span>视觉模型 <b>deepseek-flash</b></span></div><div class="buttons"><button class="primary" type="submit">保存密钥到本机</button><button id="check" class="secondary" type="button">检查连接（不上传素材）</button></div></form>
+<p class="hint">Windows DPAPI 加密，文件保存在 D 盘。不会回显密钥，不写入商品清单或日志；拷到别的电脑／Windows 账号后需要重新填写。</p><p id="check-status" class="hint" role="status"></p></section>
+<section class="card"><div class="step-heading"><span class="number">03</span><div><h2>先试一条，再决定是否自动使用</h2><p>连接通过不等于实际看图效果已验证。</p></div></div>
+<ol><li>返回工作台，打开一个已有素材的商品。</li><li>先点「只分析选片」，得到本地分镜。</li><li>点新增的「DeepSeek 复核这条」，确认上传和计费后试用。</li><li>核对建议，再点「采用云端建议」，用原有「保存时段并生成」输出新版。</li></ol>
+<a class="button secondary" href="/">返回工作台选一条试用 →</a>
+<details id="auto-section"><summary>试用满意后：开启新任务自动辅助</summary><form id="auto-form"><label class="switch"><input id="auto-enabled" type="checkbox"> 对之后新建的智能制作／分析任务自动调用 DeepSeek</label><label for="daily-limit">每日最多请求次数</label><input id="daily-limit" type="number" min="1" max="100" value="10"><p class="hint">这是本机次数保护，不是人民币预算；失败请求也占次数，可能已被服务商计费。每条最多请求一次、不自动重试、不切换平台。原手动时段及旧排队任务不自动启用。</p><label class="switch"><input id="upload-consent" type="checkbox"> 我同意开启后，将商品标题和最多 24 张抽帧组成的分镜图发送至 DeepSeek 官方 API，并承担其 API 费用。</label><button class="primary" type="submit">保存自动辅助设置</button></form></details>
+</section></div>
+<aside><div class="card summary"><span class="badge">LOCAL FIRST</span><h2>你仍然掌握开关。</h2><p>本地先找候选，DeepSeek 只复核采样画面，不上传整段视频。</p><dl><dt>密钥</dt><dd id="key-state">—</dd><dt>连接检查</dt><dd id="verified-state">—</dd><dt>自动辅助</dt><dd id="auto-state">默认关闭</dd><dt>今日请求 / 上限</dt><dd id="calls-state">—</dd><dt>今日已记录 token</dt><dd id="tokens-state">—</dd></dl><p class="hint">实际费用以 DeepSeek 账单为准。本地台账不掌握你在其他应用中的用量；请求失败时 token 可能无法记录。模型不能保证识别所有型号或水印，也不代表授权审核。</p><a href="https://api-docs.deepseek.com/quick_start/pricing/" target="_blank" rel="noopener noreferrer">查看官方计费说明 ↗</a><button id="clear-key" class="danger" type="button">停用并移除本机密钥</button></div><div class="card"><h2>最近云端请求</h2><div id="recent" class="hint">还没有请求记录。</div></div></aside>
+</div></main><footer>本机接入设置 · 原片与成片不覆盖 · 密钥不会发送到聊天</footer></body></html>

@@ -1,0 +1,16 @@
+# Tested Windows Python 3.12 CPU runtime. Isolated; never install in the ASR environment.
+rapidocr-onnxruntime==1.4.4
+onnxruntime==1.32.0
+opencv-python==5.0.0.93
+numpy==2.5.4
+Pillow==13.0.0
+tokenizers==0.22.1
+pyclipper==1.4.0
+Shapely==2.2.0
+PyYAML==6.0.3
+six==1.17.0
+protobuf==7.36.2
+flatbuffers==25.12.19
+packaging==26.3
+colorama==0.4.6
+tqdm==4.70.1

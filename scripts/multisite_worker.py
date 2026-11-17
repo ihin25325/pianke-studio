@@ -20,6 +20,7 @@ from xml.etree import ElementTree as ET
 from html.parser import HTMLParser
 from urllib.parse import parse_qs,unquote
 import video_sources as sources
+from runtime_paths import node_executable
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'tools/python_packages'))
@@ -48,7 +49,7 @@ def options(folder=None):
         'enable_file_urls':False,'nocheckcertificate':False,'concurrent_fragment_downloads':1,
         'hls_prefer_native':True,'fixup':'never',
         'ffmpeg_location':str(ROOT/'tools/ffmpeg/bin'),'merge_output_format':'mp4',
-        'js_runtimes':{'node':{'path':str(Path(sys.executable).parents[1]/'node/bin/node.exe')}},
+        'js_runtimes':{'node':{'path':node_executable()}} if node_executable() else {},
         'outtmpl':str(folder/'download.%(ext)s') if folder else None}
 
 def info_entry(data):

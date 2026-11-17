@@ -29,7 +29,7 @@
 PowerShell（在项目根目录）：
 
 ```powershell
-$taskPython = 'C:\Users\ADMIN\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+$taskPython = '.\.venv\Scripts\python.exe'
 $env:PYTHONUTF8 = '1'
 & $taskPython -B -m unittest discover -s scripts -p 'test_*.py' -v
 ```

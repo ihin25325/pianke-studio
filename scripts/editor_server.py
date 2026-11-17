@@ -38,13 +38,14 @@ import video_sources
 from video_sources import canonical as video_url
 from source_hub import SourceHub
 from snapany import SnapAny
+from runtime_paths import node_executable, sample_config
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data' / 'editor'
 STATE_FILE = DATA / 'queue.json'
 PORT = 8765
 PYTHON = sys.executable
-NODE = shutil.which('node') or r'C:\Users\ADMIN\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe'
+NODE = node_executable()
 ACTIVE = {'queued', 'searching', 'downloading', 'analyzing', 'transcribing', 'rendering'}
 BRANDS = {
     'Neumann': ['neumann', '诺音曼', '纽曼'], 'Shure': ['shure', '舒尔'],
@@ -276,7 +277,7 @@ class Editor:
         self.catalog = json.loads(catalog.read_text(encoding='utf-8')) if catalog.is_file() else []
         self.by_id = {r['product_id']:r for r in self.catalog}
         self.by_title = {compact(r['title']):r for r in self.catalog}
-        self.sample = json.loads((ROOT / 'configs' / 'neumann_u87ai.json').read_text(encoding='utf-8-sig'))
+        self.sample = json.loads(sample_config(ROOT).read_text(encoding='utf-8-sig'))
         self.board=ProjectManager(self)
         self.review=ReviewTools(self)
         self.sources=SourceHub(self)
@@ -779,7 +780,7 @@ class Editor:
             if ranked and max(c['score'] for c in ranked)>=100: break
             if index>=1 and any(c['auto_select'] for c in ranked): break
         # The known verified demo is a reusable exact-model candidate, after a real initial search.
-        if target['brand'].lower()=='neumann' and target['models']==['U87AI']:
+        if target['brand'].lower()=='neumann' and target['models']==['U87AI'] and youtube_url(self.sample.get('source_references',{}).get('video')):
             url=self.sample['source_references']['video']
             merged.setdefault(url,{'id':'FlT0bAc9Xp4','url':url,'title':'Get Real, Get the Original | The Neumann U 87 Ai','channel':'Georg Neumann GmbH','duration':43,'queries':['本机已核对的素材']})
         ranked=[dict(c,**search_strategy.evaluate(c,target,identity,BRANDS)) for c in merged.values()]
@@ -1241,8 +1242,8 @@ def main():
     parser.add_argument('--port',type=int,default=8765)
     args=parser.parse_args()
     PORT=args.port
-    if ROOT.drive.upper()!='D:':
-        raise RuntimeError('请将项目保留在 D 盘。')
+    if os.name!='nt':
+        raise RuntimeError('第一版支持 Windows；其他系统尚未验证。')
     # Hold a process-wide lock before starting any worker, including on other ports.
     # A second launcher must never create a second renderer for the same queue.
     import msvcrt

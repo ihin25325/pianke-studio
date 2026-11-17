@@ -1,0 +1,23 @@
+/* Project-private fonts. Served locally; no remote/CDN request or system install.
+   /font-assets/ is restricted to known TTF/OTF files in product_render.PRIVATE_FONTS. */
+@font-face{font-family:'Source Han Sans CN';src:url('/font-assets/SourceHanSans/SourceHanSansCN-Regular.otf') format('opentype');font-weight:400;font-display:swap}
+@font-face{font-family:'Source Han Sans CN';src:url('/font-assets/SourceHanSans/SourceHanSansCN-Bold.otf') format('opentype');font-weight:700;font-display:swap}
+@font-face{font-family:'Source Han Serif CN';src:url('/font-assets/SourceHanSerif/SourceHanSerifCN-Regular.otf') format('opentype');font-weight:400;font-display:swap}
+@font-face{font-family:'Source Han Serif CN';src:url('/font-assets/SourceHanSerif/SourceHanSerifCN-SemiBold.otf') format('opentype');font-weight:700;font-display:swap}
+@font-face{font-family:Oswald;src:url('/font-assets/Oswald/Oswald-Regular.ttf') format('truetype');font-weight:400;font-display:swap}
+@font-face{font-family:Oswald;src:url('/font-assets/Oswald/Oswald-SemiBold.ttf') format('truetype');font-weight:700;font-display:swap}
+@font-face{font-family:Montserrat;src:url('/font-assets/Montserrat/Montserrat-Regular.ttf') format('truetype');font-weight:400;font-display:swap}
+@font-face{font-family:Montserrat;src:url('/font-assets/Montserrat/Montserrat-Bold.ttf') format('truetype');font-weight:700;font-display:swap}
+@font-face{font-family:'LXGW WenKai';src:url('/font-assets/LXGWWenKai/LXGWWenKai-Regular.ttf') format('truetype');font-weight:400;font-display:swap}
+@font-face{font-family:Inter;src:url('/font-assets/Inter/Inter-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:Inter;src:url('/font-assets/Inter/Inter-Bold.ttf') format('truetype');font-style:normal;font-weight:700;font-display:swap}
+@font-face{font-family:Manrope;src:url('/font-assets/Manrope/Manrope-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:Manrope;src:url('/font-assets/Manrope/Manrope-Bold.ttf') format('truetype');font-style:normal;font-weight:700;font-display:swap}
+@font-face{font-family:'Space Grotesk';src:url('/font-assets/SpaceGrotesk/SpaceGrotesk-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:'Space Grotesk';src:url('/font-assets/SpaceGrotesk/SpaceGrotesk-Bold.ttf') format('truetype');font-style:normal;font-weight:700;font-display:swap}
+@font-face{font-family:'Bebas Neue';src:url('/font-assets/BebasNeue/BebasNeue-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:Outfit;src:url('/font-assets/Outfit/Outfit-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:Outfit;src:url('/font-assets/Outfit/Outfit-Bold.ttf') format('truetype');font-style:normal;font-weight:700;font-display:swap}
+@font-face{font-family:'ZCOOL QingKe HuangYou';src:url('/font-assets/ZCOOLQingKeHuangYou/ZCOOLQingKeHuangYou-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:'ZCOOL XiaoWei';src:url('/font-assets/ZCOOLXiaoWei/ZCOOLXiaoWei-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:'Ma Shan Zheng';src:url('/font-assets/MaShanZheng/MaShanZheng-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:swap}
