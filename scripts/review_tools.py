@@ -20,7 +20,8 @@ class ReviewTools:
         self.e=editor;self.image_inflight=set()
 
     def source(self,url,product=None):
-        from editor_server import youtube_url,source_id
+        from editor_server import video_url as youtube_url,source_id
+        import video_sources
         url=youtube_url(url)
         if not url:return {'url':'','video_id':'','local_url':'','duration':0,'title':''}
         vid=source_id(url);duration=0;title=''
@@ -37,7 +38,8 @@ class ReviewTools:
             except (OSError,ValueError):pass
         if not isinstance(duration,(int,float)) or isinstance(duration,bool) or not math.isfinite(duration) or duration<0:duration=0
         return {'url':url,'video_id':vid,'local_url':'/source-preview/'+vid+'.mp4' if local else '',
-                'duration':duration,'title':title,'has_local':bool(local)}
+                'duration':duration,'title':title,'has_local':bool(local),'platform':video_sources.platform(url),
+                'embed_kind':'youtube' if video_sources.youtube(url) else 'bilibili' if 'bilibili.com/video/' in url else 'external'}
 
     def snapshot(self,product):
         url=self.e.board.view(product)['source_url']

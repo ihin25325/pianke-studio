@@ -124,7 +124,7 @@ function createCard(task) {
   const reviewTitle = makeField(`review-title-${task.id}`, "商品标题", "text", "填写准确的商品名称或型号");
   reviewTitle.input.maxLength = 300;
   reviewTitle.input.required = true;
-  const reviewUrl = makeField(`review-url-${task.id}`, "YouTube 视频链接", "url", "https://www.youtube.com/watch?v=…"); reviewUrl.input.required = true;
+  const reviewUrl = makeField(`review-url-${task.id}`, "国内外视频链接", "url", "https://视频页面或公开直链"); reviewUrl.input.required = true;
   const reviewDescription = makeField(`review-description-${task.id}`, "商品类别 / 简介（可选）", "textarea", "例如：录音电容麦克风、音频接口、MIDI键盘。默认不写卖点。");
   reviewDescription.input.maxLength = 1800;
   const reviewError = element("p", "inline-error"); reviewError.hidden = true; reviewError.setAttribute("role", "alert");

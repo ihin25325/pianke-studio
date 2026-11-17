@@ -342,12 +342,12 @@ class ProjectManager:
         return {'ok':True,'added':1,'task_id':task['id'],'message':'已开始重做，不需要重新复制商品。旧成片保留。'}
 
     def set_source(self,pid,payload):
-        from editor_server import youtube_url
+        from editor_server import video_url as youtube_url
         with self.e.lock:
             product=self.product(pid)
             if any(t['status'] in ACTIVE for t in self.tasks(product)): raise ValueError('请等待当前任务完成后再更换素材。')
             url=youtube_url(payload.get('url',''))
-            if not url: raise ValueError('请输入有效的 YouTube 视频链接。')
+            if not url: raise ValueError('请输入公开 HTTPS 视频页面、分享短链或视频直链。')
             if self.view(product)['source_url']!=url:product.pop('clip',None)
             product.update(source_url=url,updated_at=now());self.e.save()
         return {'ok':True,'message':'素材链接已绑定。点击“开始制作”或“重做”后使用，不会立即下载。'}
@@ -358,7 +358,7 @@ class ProjectManager:
         clip_edit.apply(task,clip)
 
     def validated_clip(self,product,payload):
-        from editor_server import youtube_url
+        from editor_server import video_url as youtube_url
         source=self.view(product)['source_url']
         clip=clip_edit.normalize(payload,youtube_url,self.e.review.source(source,product)['duration'])
         if not source or clip['source_url']!=source:raise ValueError('素材链接已变化，请刷新并为当前视频重新设置起止时间。')
@@ -475,7 +475,7 @@ class ProjectManager:
         return meta,(self.import_folder()/(token+meta['suffix'])).read_bytes()
 
     def normalized_records(self,prepared,rule):
-        from editor_server import youtube_url
+        from editor_server import video_url as youtube_url
         if rule not in {'all','missing_video','marked'}: raise ValueError('未知的商品筛选规则。')
         if rule=='missing_video' and prepared['mapping']['existing_video']<0: raise ValueError('请先匹配“已有视频链接”列。')
         if rule=='marked' and prepared['mapping']['need']<0: raise ValueError('请先匹配“是否需要制作”列。')
@@ -542,7 +542,7 @@ class ProjectManager:
 
 
 def extract_links(text):
-    from editor_server import youtube_url
+    from editor_server import video_url as youtube_url
     if not isinstance(text,str) or len(text)>100000: raise ValueError('链接文本过长。')
     links=[];seen=set()
     for raw in re.findall(r'https?://[^\s<>"\u3000]+',text):

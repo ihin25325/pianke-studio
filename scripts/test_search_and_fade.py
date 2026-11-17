@@ -21,7 +21,9 @@ class SearchAndFadeTests(unittest.TestCase):
         cls.folder=Path(tempfile.mkdtemp(prefix='run_',dir=folder))
 
     def editor(self):
-        return app.Editor(self.folder/(self._testMethodName+'.json'),start_worker=False)
+        editor=app.Editor(self.folder/(self._testMethodName+'.json'),start_worker=False)
+        editor.state['settings']['source_scope']='youtube'
+        return editor
 
     def task(self,e,title='Xvive AT-1 audio tester'):
         e.board.paste({'text':title})

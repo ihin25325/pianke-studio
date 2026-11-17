@@ -34,6 +34,9 @@ from studio import Studio
 from api_connections import ApiConnections
 from brand_logos import BrandLogos
 from review_tools import ReviewTools
+import video_sources
+from video_sources import canonical as video_url
+from source_hub import SourceHub
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data' / 'editor'
@@ -179,10 +182,7 @@ def candidate_score(candidate, brand, model):
 
 
 def source_id(url):
-    canonical = youtube_url(url)
-    if not canonical:
-        raise ValueError('请提供有效的 YouTube 视频链接（不支持播放列表）。')
-    return parse_qs(urlparse(canonical).query)['v'][0]
+    return video_sources.source_key(url)
 
 
 def split_description(text):
@@ -278,6 +278,7 @@ class Editor:
         self.sample = json.loads((ROOT / 'configs' / 'neumann_u87ai.json').read_text(encoding='utf-8-sig'))
         self.board=ProjectManager(self)
         self.review=ReviewTools(self)
+        self.sources=SourceHub(self)
         self.downloads=ExportDownloads(self)
         self.connections=ApiConnections(self)
         self.logos=BrandLogos(self)
@@ -354,7 +355,7 @@ class Editor:
         if not product_id and re.fullmatch(r'\d{6,20}', cols[0].strip()):
             product_id = cols[0].strip()
         record = self.by_id.get(product_id)
-        explicit_url = next((youtube_url(u.rstrip('。,.')) for u in urls if youtube_url(u.rstrip('。,.'))), None)
+        explicit_url = next((video_url(u.rstrip('。,.')) for u in urls if video_url(u.rstrip('。,.')) and urlparse(u).hostname not in {'item.taobao.com','detail.tmall.com'}), None)
         if len(cols) > 1 and re.fullmatch(r'\d{6,20}', cols[0].strip()):
             title = cols[1].strip()
             description = ''
@@ -462,9 +463,9 @@ class Editor:
             if task.get('transcription',{}).get('status') in {'queued','transcribing'}:
                 raise ValueError('请等待这条视频的语音识别完成。')
             if action == 'source':
-                url = youtube_url(payload.get('url',''))
+                url = video_url(payload.get('url',''))
                 if not url:
-                    raise ValueError('请输入有效的 YouTube 视频链接。')
+                    raise ValueError('请输入公开 HTTPS 视频页面、分享短链或视频直链。')
                 title = str(payload.get('title') or task['title']).strip()
                 if not title or len(title)>300:
                     raise ValueError('请输入不超过 300 字符的商品名称。')
@@ -704,7 +705,33 @@ class Editor:
     def ytdlp(self):
         return [PYTHON,'-B','-m','yt_dlp','--ignore-config','--no-playlist','--socket-timeout','20','--retries','1','--js-runtimes',f'node:{NODE}','--remote-components','ejs:github','--cache-dir',str(ROOT/'cache'/'yt-dlp')]
 
-    def search(self, task):
+    def search(self,task):
+        selected=self.state['settings'].get('source_scope','all')
+        video_sources.scope(selected)
+        merged={};attempts=[];responses=0
+        if selected!='domestic':
+            try:
+                for item in self.search_youtube(task):merged[item['url']]=dict(item,platform='YouTube',verified_video=True)
+                responses+=1
+            except RuntimeError:pass
+            attempts.extend(dict(a,engine='YouTube') for a in task.get('search_report',{}).get('attempts',[]))
+        target=search_strategy.plan(task,identity)
+        self.update(task,brand=target['brand'],models=target['models'],model=target['models'][0] if len(target['models'])==1 else '')
+        if selected!='youtube':
+            entries,extra,success=self.sources.additional(task,target,selected);attempts.extend(extra);responses+=success
+            for item in entries:merged.setdefault(item['url'],item)
+        ranked=[]
+        for candidate in merged.values():
+            item=dict(candidate,**search_strategy.evaluate(candidate,target,identity,BRANDS))
+            if not candidate.get('verified_video',False):item.update(auto_select=False,match_reason=item['match_reason']+'；网页结果尚未验证，请预览或下载核对')
+            ranked.append(item)
+        ranked.sort(key=lambda c:(c['auto_select'],c['score']),reverse=True)
+        self.update(task,search_report={'version':search_strategy.VERSION,'scope':selected,'name':target['name'],'attempts':attempts,
+            'unique_candidates':len(ranked),'target_models':target['models'],'requires_variant':len(target['models'])!=1})
+        if not responses and not ranked:raise RuntimeError('所选来源检索连接失败，不代表没有对应视频。可调整来源范围、换关键词或直接粘贴视频链接。')
+        return ranked[:40]
+
+    def search_youtube(self, task):
         target=search_strategy.plan(task,identity)
         self.update(task,brand=target['brand'],models=target['models'],model=target['models'][0] if len(target['models'])==1 else '')
         cache=DATA/'search_cache_v2'
@@ -767,7 +794,7 @@ class Editor:
             try:
                 data=json.loads(info.read_text(encoding='utf-8'))
                 source=info.with_name('source.mp4')
-                if data.get('id')==video_id and source.is_file() and source.stat().st_size>10000:
+                if (data.get('_workbench_source_id') or data.get('id'))==video_id and source.is_file() and source.stat().st_size>10000:
                     return source
             except (OSError,ValueError):
                 continue
@@ -775,7 +802,7 @@ class Editor:
 
     def process(self, task):
         if self.board.skip_task_if_needed(task): return
-        self.update(task,status='searching',progress=5,message='按品牌和型号检索 YouTube…')
+        self.update(task,status='searching',progress=5,message='按品牌和型号检索所选国内外来源…')
         if not task.get('selected_url'):
             candidates=self.search(task)
             self.update(task,candidates=candidates)
@@ -797,9 +824,13 @@ class Editor:
         self.update(task,status='downloading',progress=25,message='下载原片（优先 1080p），已有素材直接复用…')
         source=self.existing_source(video_id)
         if source is None:
-            folder=ROOT/'sources'/f'yt_{video_id}'
+            folder=ROOT/'sources'/(f'yt_{video_id}' if youtube_url(task['selected_url']) else video_id)
             folder.mkdir(parents=True,exist_ok=True)
-            self.command(self.ytdlp()+['--max-filesize','300M','--match-filter','duration <= 900 & !is_live','--no-overwrites','--no-progress','--write-info-json','--ffmpeg-location',str(ROOT/'tools'/'ffmpeg'/'bin'),'-f','bv[height<=1080][ext=mp4]+ba[ext=m4a]/b[height<=1080][ext=mp4]','--merge-output-format','mp4','-o',str(folder/'source.%(ext)s'),task['selected_url']],task,'download',timeout=900)
+            if youtube_url(task['selected_url']):
+                self.command(self.ytdlp()+['--max-filesize','300M','--match-filter','duration <= 900 & !is_live','--no-overwrites','--no-progress','--write-info-json','--ffmpeg-location',str(ROOT/'tools'/'ffmpeg'/'bin'),'-f','bv[height<=1080][ext=mp4]+ba[ext=m4a]/b[height<=1080][ext=mp4]','--merge-output-format','mp4','-o',str(folder/'source.%(ext)s'),task['selected_url']],task,'download',timeout=900)
+            else:
+                try:self.command([PYTHON,'-B',str(ROOT/'scripts/multisite_worker.py'),'download',task['selected_url'],str(folder)],task,'download',timeout=900)
+                except RuntimeError as error:raise RuntimeError(video_sources.failure(error)) from error
             source=folder/'source.mp4'
             if not source.is_file():
                 raise RuntimeError('素材未下载完成，可能超过 15 分钟/体积限制，或需要登录。请换一个较短视频。')
@@ -817,13 +848,13 @@ class Editor:
         display_title=concise_title(original_title,task['brand'],[task['model']] if task['model'] else [])
         references=copy.deepcopy(config.get('source_references',{}))
         references.update(video=task['selected_url'],taobao_item=task.get('taobao_url',''),original_title=original_title,description_source=task['description_source'])
-        config.update(product_id=task['product_id'] or task['id'],output_prefix='product_'+(task['product_id'] or task['id']),source=str(source.relative_to(ROOT)),source_audio=None,allow_silent_output=False,brand_title=task['brand'].upper() or 'PRODUCT',product_title=display_title,description_lines=split_description(task['description']),font='Source Han Sans CN',title_font='Oswald',brand_font='Oswald',description_font='Source Han Sans CN',text_scale=task['text_scale'],max_duration_seconds=task['max_duration_seconds'],segments=[{'start':0,'end':None}],source_references=references,text_review_note='按商品型号匹配素材；简介来源：'+task['description_source']+'。超过上限时保留片头起的连续片段，未做语义高光选择。')
+        config.update(product_id=task['product_id'] or task['id'],output_prefix='product_'+(task['product_id'] or task['id']),source=str(source.relative_to(ROOT)),source_audio=None,allow_silent_output=not bool(youtube_url(task['selected_url'])),brand_title=task['brand'].upper() or 'PRODUCT',product_title=display_title,description_lines=split_description(task['description']),font='Source Han Sans CN',title_font='Oswald',brand_font='Oswald',description_font='Source Han Sans CN',text_scale=task['text_scale'],max_duration_seconds=task['max_duration_seconds'],segments=[{'start':0,'end':None}],source_references=references,text_review_note='按商品型号匹配素材；简介来源：'+task['description_source']+'。超过上限时保留片头起的连续片段，未做语义高光选择。')
         config['typography']=normalize_style(task.get('typography') or self.typography)
         config['fade_out_seconds']=1.0
         clip=task.get('clip')
         if clip and clip.get('source_url')==task.get('selected_url'):
             available=renderer.duration(renderer.probe(source))
-            clip=clip_edit.normalize(clip,youtube_url,available)
+            clip=clip_edit.normalize(clip,video_url,available)
             config['segments']=[{'start':clip['start'],'end':clip['end']}]
         elif task.get('batch_clip'):
             # The batch range is not source-bound: short sources are clipped at
@@ -962,6 +993,8 @@ class Handler(BaseHTTPRequestHandler):
             if self.path=='/api/connections':return self.send_json(EDITOR.connections.save(payload))
             if self.path=='/api/connections/check':return self.send_json(EDITOR.connections.check())
             if self.path=='/api/brand-logos/settings':return self.send_json(EDITOR.logos.save(payload))
+            if self.path=='/api/sources/settings':return self.send_json(EDITOR.sources.save(payload))
+            if self.path=='/api/sources/probe':return self.send_json(EDITOR.sources.probe(payload))
             if self.path=='/api/brand-logos/find':return self.send_json(EDITOR.logos.discover(payload))
             if self.path=='/api/brand-logos/frame':return self.send_json(EDITOR.logos.frame(payload))
             if self.path=='/api/brand-logos/crop':return self.send_json(EDITOR.logos.crop(payload))
@@ -1035,6 +1068,7 @@ class Handler(BaseHTTPRequestHandler):
         path=unquote(urlparse(self.path).path)
         if path=='/api/exports':return self.send_json(EDITOR.downloads.snapshot(parse_qs(urlparse(self.path).query)))
         if path=='/api/studio':return self.send_json(EDITOR.studio.snapshot())
+        if path=='/api/sources':return self.send_json(EDITOR.sources.snapshot())
         if path=='/api/brand-logos':
             try:return self.send_json(EDITOR.logos.snapshot())
             except ValueError as error:return self.send_json({'error':str(error)},400)
@@ -1046,7 +1080,7 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/api/source-review':
             try:
                 url=parse_qs(urlparse(self.path).query).get('url',[''])[0]
-                if not youtube_url(url):raise ValueError('请输入有效的 YouTube 视频链接。')
+                if not video_url(url):raise ValueError('请输入公开 HTTPS 视频页面、分享短链或视频直链。')
                 return self.send_json({'ok':True,'source':EDITOR.review.source(url)})
             except (ValueError,TypeError) as exc:return self.send_json({'error':str(exc)},400)
         if path=='/api/storage': return self.send_json(EDITOR.storage_state())
@@ -1080,6 +1114,8 @@ class Handler(BaseHTTPRequestHandler):
             file=ROOT/'web'/'api-settings.html'
         elif path=='/brand-assets':
             file=ROOT/'web'/'brand-assets.html'
+        elif path=='/sources':file=ROOT/'web'/'sources.html'
+        elif path in {'/web/sources.js','/web/sources.css'}:file=ROOT/path.lstrip('/')
         elif path in {'/web/brand-assets.js','/web/brand-assets.css'}:
             file=ROOT/path.lstrip('/')
         elif path.startswith('/brand-logo/'):
@@ -1102,7 +1138,7 @@ class Handler(BaseHTTPRequestHandler):
             file=EDITOR.resolve_media(urlparse(self.path).path)
             if file is None:
                 return self.send_json({'error':'不支持的文件。'},404)
-        elif re.fullmatch(r'/source-preview/[\w-]{11}\.mp4',path):
+        elif re.fullmatch(r'/source-preview/(?:[\w-]{11}|v_[a-f0-9]{24})\.mp4',path):
             file=EDITOR.existing_source(path[len('/source-preview/'):-4])
             if file is None or file.is_symlink():return self.send_json({'error':'本地原片尚未下载完成。'},404)
         elif re.fullmatch(r'/product-image/[a-f0-9]{12}/[a-f0-9]{32}\.(?:jpg|png|webp)',path):
@@ -1141,7 +1177,7 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header('Cache-Control','no-store')
         self.send_header('X-Content-Type-Options','nosniff')
         self.send_header('Referrer-Policy','strict-origin-when-cross-origin')
-        self.send_header('Content-Security-Policy',"default-src 'self'; script-src 'self' https://www.youtube.com/iframe_api https://www.youtube.com/s/player/; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.ytimg.com https://*.alicdn.com https://*.tbcdn.cn; media-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self'; frame-ancestors 'none'")
+        self.send_header('Content-Security-Policy',"default-src 'self'; script-src 'self' https://www.youtube.com/iframe_api https://www.youtube.com/s/player/; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.ytimg.com https://*.alicdn.com https://*.tbcdn.cn; media-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.bilibili.com; connect-src 'self'; frame-ancestors 'none'")
         if status==206:
             self.send_header('Content-Range',f'bytes {start}-{end}/{size}')
         self.end_headers()
