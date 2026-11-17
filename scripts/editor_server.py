@@ -37,6 +37,7 @@ from review_tools import ReviewTools
 import video_sources
 from video_sources import canonical as video_url
 from source_hub import SourceHub
+from snapany import SnapAny
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data' / 'editor'
@@ -279,6 +280,7 @@ class Editor:
         self.board=ProjectManager(self)
         self.review=ReviewTools(self)
         self.sources=SourceHub(self)
+        self.snapany=SnapAny(self)
         self.downloads=ExportDownloads(self)
         self.connections=ApiConnections(self)
         self.logos=BrandLogos(self)
@@ -826,11 +828,13 @@ class Editor:
         if source is None:
             folder=ROOT/'sources'/(f'yt_{video_id}' if youtube_url(task['selected_url']) else video_id)
             folder.mkdir(parents=True,exist_ok=True)
-            if youtube_url(task['selected_url']):
-                self.command(self.ytdlp()+['--max-filesize','300M','--match-filter','duration <= 900 & !is_live','--no-overwrites','--no-progress','--write-info-json','--ffmpeg-location',str(ROOT/'tools'/'ffmpeg'/'bin'),'-f','bv[height<=1080][ext=mp4]+ba[ext=m4a]/b[height<=1080][ext=mp4]','--merge-output-format','mp4','-o',str(folder/'source.%(ext)s'),task['selected_url']],task,'download',timeout=900)
-            else:
-                try:self.command([PYTHON,'-B',str(ROOT/'scripts/multisite_worker.py'),'download',task['selected_url'],str(folder)],task,'download',timeout=900)
-                except RuntimeError as error:raise RuntimeError(video_sources.failure(error)) from error
+            def local_download():
+                if youtube_url(task['selected_url']):
+                    self.command(self.ytdlp()+['--max-filesize','300M','--match-filter','duration <= 900 & !is_live','--no-overwrites','--no-progress','--write-info-json','--ffmpeg-location',str(ROOT/'tools'/'ffmpeg'/'bin'),'-f','bv[height<=1080][ext=mp4]+ba[ext=m4a]/b[height<=1080][ext=mp4]','--merge-output-format','mp4','-o',str(folder/'source.%(ext)s'),task['selected_url']],task,'download',timeout=900)
+                else:
+                    try:self.command([PYTHON,'-B',str(ROOT/'scripts/multisite_worker.py'),'download',task['selected_url'],str(folder)],task,'download',timeout=900)
+                    except RuntimeError as error:raise RuntimeError(video_sources.failure(error)) from error
+            self.snapany.download(task,task['selected_url'],folder,local_download)
             source=folder/'source.mp4'
             if not source.is_file():
                 raise RuntimeError('素材未下载完成，可能超过 15 分钟/体积限制，或需要登录。请换一个较短视频。')
@@ -995,6 +999,9 @@ class Handler(BaseHTTPRequestHandler):
             if self.path=='/api/brand-logos/settings':return self.send_json(EDITOR.logos.save(payload))
             if self.path=='/api/sources/settings':return self.send_json(EDITOR.sources.save(payload))
             if self.path=='/api/sources/probe':return self.send_json(EDITOR.sources.probe(payload))
+            if self.path=='/api/snapany/settings':return self.send_json(EDITOR.snapany.save(payload))
+            if self.path=='/api/snapany/check':return self.send_json(EDITOR.snapany.check())
+            if self.path=='/api/snapany/extract':return self.send_json(EDITOR.snapany.preview(payload))
             if self.path=='/api/brand-logos/find':return self.send_json(EDITOR.logos.discover(payload))
             if self.path=='/api/brand-logos/frame':return self.send_json(EDITOR.logos.frame(payload))
             if self.path=='/api/brand-logos/crop':return self.send_json(EDITOR.logos.crop(payload))
@@ -1069,6 +1076,9 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/api/exports':return self.send_json(EDITOR.downloads.snapshot(parse_qs(urlparse(self.path).query)))
         if path=='/api/studio':return self.send_json(EDITOR.studio.snapshot())
         if path=='/api/sources':return self.send_json(EDITOR.sources.snapshot())
+        if path=='/api/snapany':
+            try:return self.send_json(EDITOR.snapany.snapshot())
+            except ValueError as error:return self.send_json({'error':str(error)},400)
         if path=='/api/brand-logos':
             try:return self.send_json(EDITOR.logos.snapshot())
             except ValueError as error:return self.send_json({'error':str(error)},400)
