@@ -1,0 +1,11 @@
+# Private API credentials (even encrypted) and local video/business data.
+data/
+sources/
+outputs/
+work/
+cache/
+tools/
+models/
+*.env
+.env*
+__pycache__/
