@@ -4,6 +4,14 @@ The project source is MIT. This does **not** relicense external executables,
 fonts, models, downloaded videos, logos or trademarks. These components are
 not bundled as binaries/model weights in the source release.
 
+The Windows desktop preview is a separate binary distribution. It includes
+official embeddable CPython and Node, plus pinned Pillow, yt-dlp and pip wheels.
+Their license files and distribution metadata are retained in the bundle;
+archive origins, versions and SHA256 values are recorded in bundle-manifest.json.
+FFmpeg, fonts and models are not bundled: FFmpeg/fonts are downloaded to the
+user's own writable directory after first-run consent. Desktop artifacts are
+not the same as the MIT-only source ZIP.
+
 | Component | Upstream / license information | How obtained |
 | --- | --- | --- |
 | Python | https://docs.python.org/3/license.html | User installs 64-bit Python |

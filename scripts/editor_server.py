@@ -910,11 +910,25 @@ class Editor:
                     cover_url=media_prefix+quote(output_path.with_suffix('.cover.jpg').name) if output_path.with_suffix('.cover.jpg').is_file() else '',
                     title_asset_url=media_prefix+quote(output_path.with_suffix('.title.png').name) if output_path.with_suffix('.title.png').is_file() else '')
 
+    def launcher_busy(self):
+        return self.worker_busy or any(t.get('status') in {'searching','downloading','analyzing','transcribing','rendering'} for t in self.state['tasks']) or any(j.get('status')=='building' for j in self.state.get('export_batches',[]))
+
+    def launcher_stop(self, instance):
+        with self.lock:
+            expected=os.environ.get('PIANKE_LAUNCHER_ID','')
+            if not expected or instance!=expected:
+                raise ValueError('不能管理其他启动器或源码模式的后台。')
+            if self.launcher_busy():
+                raise ValueError('有任务正在处理，请完成后再停止。')
+            self.stopping=True
+            self.wake.set()
+
     def worker(self):
         while not self.stopping:
             self.wake.wait(2)
             self.wake.clear()
             with self.lock:
+                if self.stopping:return
                 task=None if self.state['paused'] else next((t for t in self.state['tasks'] if t['status']=='queued'),None)
                 speech_task=None if self.state['paused'] or task else next((t for t in self.state['tasks'] if t.get('transcription',{}).get('status')=='queued'),None)
                 self.worker_busy=bool(task or speech_task)
@@ -957,6 +971,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self.allowed_host() or self.headers.get('Origin') not in {f'http://127.0.0.1:{PORT}',f'http://localhost:{PORT}'}:
             return self.send_json({'error':'只接受本机页面发起的请求。'},403)
+        if EDITOR.stopping:
+            return self.send_json({'error':'后台正在安全退出，请稍后重新启动。'},503)
         if self.path=='/api/brand-logos/upload':
             try:
                 length=int(self.headers.get('Content-Length','0'))
@@ -991,6 +1007,11 @@ class Handler(BaseHTTPRequestHandler):
             payload=json.loads(self.rfile.read(length))
             if not isinstance(payload,dict):
                 raise ValueError('请求格式不正确。')
+            if self.path=='/api/launcher/stop':
+                EDITOR.launcher_stop(payload.get('instance'))
+                self.send_json({'ok':True})
+                threading.Thread(target=self.server.shutdown,daemon=True).start()
+                return
             if self.path=='/api/board/paste': return self.send_json(EDITOR.board.paste(payload))
             if self.path=='/api/storage': return self.send_json(EDITOR.save_storage(payload))
             if self.path=='/api/studio/settings':return self.send_json(EDITOR.studio.save(payload))
@@ -1107,7 +1128,10 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/api/state':
             return self.send_json(EDITOR.snapshot())
         if path=='/api/health':
-            return self.send_json({'ok':True,'app':'product-video-editor'})
+            with EDITOR.lock:
+                busy=EDITOR.launcher_busy()
+            return self.send_json({'ok':True,'app':'product-video-editor',
+                                   'launcher_id':os.environ.get('PIANKE_LAUNCHER_ID',''),'busy':busy})
         if path=='/api/typography':
             try:
                 return self.send_json(EDITOR.typography_state(parse_qs(urlparse(self.path).query).get('task',[''])[0]))

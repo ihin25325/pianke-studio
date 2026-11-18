@@ -21,6 +21,8 @@
 
 ## 安装：Windows 10/11 x64
 
+Windows 桌面预览版提供 EXE 启动器、便携包和用户级安装包的构建方式，使用时不需要系统 Python。首次准备媒体组件需要联网；大模型仍为可选。使用与限制见 [Windows 桌面版说明](docs/WINDOWS_APP.md)。以下是开发者／源码版安装步骤。
+
 首次安装需要联网。先准备：
 
 1. [64 位 Python](https://www.python.org/downloads/windows/) 3.11+，推荐 3.12；安装时启用 PATH。无需安装 Codex。

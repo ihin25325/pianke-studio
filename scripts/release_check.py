@@ -17,7 +17,8 @@ ROOT_FILES = {'.gitignore', '.gitattributes', 'AGENTS.md', 'LICENSE', 'README.md
 PATTERNS = ['scripts/*.py', 'scripts/*.ps1', 'scripts/*.txt', 'web/*.html', 'web/*.css', 'web/*.js',
             'examples/*.csv', 'examples/*.json', 'docs/*.md', 'docs/demo.gif',
             'configs/defaults.json', '.github/workflows/*.yml', 'assets/fonts/**/OFL*.txt',
-            'assets/fonts/使用说明.md', 'assets/fonts/高级字体包说明.md']
+            'assets/fonts/使用说明.md', 'assets/fonts/高级字体包说明.md',
+            'packaging/*.cs', 'packaging/*.iss', 'packaging/*.manifest', 'packaging/windows-runtime.json']
 SECRET = re.compile(r'sk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{20,}|sk_snapany_[A-Za-z0-9_-]{16,}|gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----')
 FAKE_KEYS = {'sk-local-test-not-valid-network', 'sk_snapany_local_test_not_a_real_key'}
 

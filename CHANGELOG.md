@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0-preview.1 — Windows launcher preview
+
+- User-level Windows launcher, private runtime, filtered portable ZIP and Inno
+  Setup installer recipe; existing source launchers are unchanged.
+- Explicit first-run consent for verified media/font downloads, health-gated
+  browser opening, per-install process ownership and safe idle-only shutdown.
+- Models remain optional; full model compatibility with the desktop Python
+  runtime is not claimed. No user queue, credentials or media are bundled.
+
 ## 0.1.0 — first source release candidate
 
 - Windows local product-video workbench: CSV/XLSX queue, source discovery,
