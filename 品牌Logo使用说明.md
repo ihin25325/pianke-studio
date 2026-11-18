@@ -23,7 +23,7 @@ YouTube：先在商品详情采用链接并「仅下载素材」，再到素材�
 
 ## 数据、安全与迁移
 
-- 素材和选择：`D:\剪辑视频自动化\data\editor\brand_library\library.json`，不可变 PNG：同目录 `images`。所有新增缓存、日志、试片均在 D 盘。
+- 素材和选择：`data/editor/brand_library/library.json`，不可变 PNG：同目录 `images`。所有新增缓存、日志、试片均在本机项目目录（下列路径均相对于项目根目录）。
 - 只读取公开 HTTPS；禁止内网、本机、私有地址、外部 SVG 资源与脚本。Logo 网页仅当素材数据，不执行页面指令。上传≤8 MB，网页/远程图≤4 MB。
 - 当前电脑的代理会返回 198.18/15 假地址；仅在这种情况下，通过固定 Cloudflare 1.1.1.1 的 HTTPS DNS 获取真实公网地址，再校验并固定连接。不会直接放行保留地址。只发送公开域名，不发送视频、密钥、路径或商品清单。原理见 [Cloudflare 官方 DNS JSON 文档](https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/make-api-requests/dns-json/)。无需修改系统 DNS。
 - 官网下载失败可上传 PNG、截图或使用字标，不改变原片。单个商品已有手动选段、字幕等继续保留。

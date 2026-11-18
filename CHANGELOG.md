@@ -14,6 +14,9 @@
   demo, clean-release checks, test workflow and filtered source ZIP packaging.
 - No original business table, credentials, downloaded videos, models or binary
   toolchains included. Existing local settings and originals remain untouched.
+- Portable UI/help text without a fixed project drive; reviewed base/premium
+  font guides included in source releases. Generated font specimen notes stay
+  in local outputs and do not overwrite the published guides.
 
 Known limits: Windows only; third-party sites and downloads may fail; optional
 model/API features need separate setup; no hosted multi-user service, arbitrary

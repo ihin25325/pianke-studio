@@ -76,7 +76,7 @@ async function load(){
     $("subtitles-enabled").checked=current.subtitles.enabled;$("speech-language").value=current.subtitles.language;$("subtitle-srt").value=current.subtitles.srt;
     $("subtitle-target").value=current.subtitles.target || "zh";targetLabel();
     $("recognize-speech").hidden=!taskId;$("subtitle-details").hidden=!taskId;
-    $("speech-status").textContent=current.speech_ready?(current.translation_ready?"本地识别＋中文翻译已就绪 · 无 API key · 不按 API token 收费":"识别已就绪；中文翻译需双击 D 盘项目中的「安装中文翻译.bat」。"):"模型尚未安装：请双击 D 盘项目中的「安装语音字幕.bat」，完成后刷新。";
+    $("speech-status").textContent=current.speech_ready?(current.translation_ready?"本地识别＋中文翻译已就绪 · 无 API key · 不按 API token 收费":"识别已就绪；中文翻译需双击 项目目录中的「安装中文翻译.bat」。"):"模型尚未安装：请双击 项目目录中的「安装语音字幕.bat」，完成后刷新。";
     setSpeechBusy(false);
     const target=$("editing-target");for(const task of current.tasks){const option=node("option",task.title+" · "+task.id.slice(-4));option.value=task.id;target.append(option);}target.value=taskId;
     $("mode-label").textContent=taskId?"编辑这条视频":"批量默认样式";$("copy-heading").textContent=taskId?"这条视频的文案":"示例文案";

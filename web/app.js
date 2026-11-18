@@ -287,7 +287,7 @@ function render(state) {
     updateSettingsLabel();
   }
   firstLoad=false;
-  $("speech-ready").textContent=state.speech_ready?(state.translation_ready?"本地识别＋中文翻译已就绪 · 无 API 费用。中文原声直接识别；专业词请校对。":"本地识别已就绪；中文翻译需双击 D 盘项目中的「安装中文翻译.bat」。"):"模型尚未安装：请双击 D 盘项目中的「安装语音字幕.bat」。";
+  $("speech-ready").textContent=state.speech_ready?(state.translation_ready?"本地识别＋中文翻译已就绪 · 无 API 费用。中文原声直接识别；专业词请校对。":"本地识别已就绪；中文翻译需双击 项目目录中的「安装中文翻译.bat」。"):"模型尚未安装：请双击 项目目录中的「安装语音字幕.bat」。";
   const present=new Set();
   tasks.forEach(task => {
     present.add(String(task.id));

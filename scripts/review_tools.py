@@ -86,7 +86,7 @@ class ReviewTools:
         image={'url':'/product-image/'+pid+'/'+name,'status':'ready','source':'manual_upload',
                'message':'用户上传的商品参考图，请人工核对。','checked_at':time.time(),'revision':uuid.uuid4().hex}
         self.save_image(pid,image)
-        return {'ok':True,'image':image,'message':'商品参考图已上传到 D 盘，不会写进视频。'}
+        return {'ok':True,'image':image,'message':'商品参考图已上传到本机项目目录，不会写进视频。'}
 
     def fetch_image(self,pid,payload):
         force=payload.get('force',False)

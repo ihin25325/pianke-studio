@@ -9,7 +9,7 @@
 <a class="button secondary" href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">打开 DeepSeek 官方密钥页面 ↗</a><p class="hint">登录、验证码、支付和协议确认由你自己操作。先检查可用余额；不用为了连接检查立即充值，是否需要充值以官方控制台为准。</p></section>
 <section class="card"><div class="step-heading"><span class="number">02</span><div><h2>只在这台电脑上保存密钥</h2><p>保存不会向 DeepSeek 发请求，也不会生成视频。</p></div></div>
 <form id="key-form"><label for="api-key">DeepSeek API Key</label><input id="api-key" type="password" autocomplete="off" spellcheck="false" maxlength="512" placeholder="在这里粘贴完整密钥；已保存时留空即可保留"><div class="facts"><span>官方地址 <b>api.deepseek.com</b></span><span>视觉模型 <b>deepseek-flash</b></span></div><div class="buttons"><button class="primary" type="submit">保存密钥到本机</button><button id="check" class="secondary" type="button">检查连接（不上传素材）</button></div></form>
-<p class="hint">Windows DPAPI 加密，文件保存在 D 盘。不会回显密钥，不写入商品清单或日志；拷到别的电脑／Windows 账号后需要重新填写。</p><p id="check-status" class="hint" role="status"></p></section>
+<p class="hint">Windows DPAPI 加密，文件保存在本机项目目录。不会回显密钥，不写入商品清单或日志；拷到别的电脑／Windows 账号后需要重新填写。</p><p id="check-status" class="hint" role="status"></p></section>
 <section class="card"><div class="step-heading"><span class="number">03</span><div><h2>先试一条，再决定是否自动使用</h2><p>连接通过不等于实际看图效果已验证。</p></div></div>
 <ol><li>返回工作台，打开一个已有素材的商品。</li><li>先点「只分析选片」，得到本地分镜。</li><li>点新增的「DeepSeek 复核这条」，确认上传和计费后试用。</li><li>核对建议，再点「采用云端建议」，用原有「保存时段并生成」输出新版。</li></ol>
 <a class="button secondary" href="/">返回工作台选一条试用 →</a>

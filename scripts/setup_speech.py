@@ -1,4 +1,4 @@
-"""Download the public Whisper base model to D: and verify every model file."""
+"""Download the public Whisper base model into the project directory and verify every model file."""
 import hashlib
 import json
 from pathlib import Path

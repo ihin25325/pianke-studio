@@ -119,7 +119,7 @@ def fetch(payload):
         raise ValueError('原始视频地址无效。')
     folder = Path(payload['folder']).resolve()
     if ROOT not in folder.parents or not any(parent.resolve() in folder.parents for parent in (ROOT / 'sources', ROOT / 'work')):
-        raise ValueError('下载目标必须位于 D 盘项目 sources 或 work 子目录。')
+        raise ValueError('下载目标必须位于 项目目录的 sources 或 work 子目录。')
     summary, urls, headers = choose(payload['post'], url)
     folder.mkdir(parents=True, exist_ok=True)
     target = folder / 'source.mp4'
@@ -183,6 +183,6 @@ if __name__ == '__main__':
     except ValueError as error:
         result = {'ok': False, 'error': str(error) if str(error).endswith('。') else '素材格式或安全校验未通过。解析可能已扣积分。'}
     except Exception:
-        result = {'ok': False, 'error': '素材下载或转码失败，请检查网络、D 盘空间或换链接；未自动重新解析。解析可能已扣积分。'}
+        result = {'ok': False, 'error': '素材下载或转码失败，请检查网络、下载目录所在磁盘空间或换链接；未自动重新解析。解析可能已扣积分。'}
     print(json.dumps(result, ensure_ascii=False))
     raise SystemExit(0 if result.get('ok') else 1)

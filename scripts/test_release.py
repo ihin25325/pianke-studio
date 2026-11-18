@@ -27,10 +27,44 @@ class ReleaseTests(unittest.TestCase):
         self.assertIn('scripts/product_render.py', names)
         self.assertIn('scripts/test_editor.py', names)
         self.assertIn('web/brand-assets.js', names)
+        self.assertIn('assets/fonts/使用说明.md', names)
+        self.assertIn('assets/fonts/高级字体包说明.md', names)
         for name in names:
             self.assertNotIn(name.split('/')[0], {'data','work','sources','outputs','cache','tools','models','.git','.venv','dist'})
             self.assertFalse(name.startswith('configs/task_'))
             self.assertNotIn(Path(name).suffix, {'.xlsx','.exe','.ttf','.otf'})
+
+    def test_published_copy_has_no_fixed_project_drive(self):
+        for file in release.release_files():
+            if file.name.startswith('test_') or file.suffix not in {'.md','.html','.js','.py','.ps1','.bat'}:
+                continue
+            text=file.read_text(encoding='utf-8-sig')
+            with self.subTest(file=file.relative_to(app.ROOT).as_posix()):
+                # System paths and intentionally invalid security-test paths are not private project locations.
+                self.assertNotRegex(text, r'\bD:(?:[\\/]|\s|[.])|D\s*盘|C\s*盘')
+                self.assertNotRegex(text, r'[A-Za-z]:[\\/]+Users[\\/]+[^\\/\s]+[\\/]')
+
+    def test_font_specimen_writes_local_notes_not_published_guide(self):
+        import font_specimen as specimen
+        folder=self.root/'specimen'
+        fonts=folder/'assets/fonts'
+        fonts.mkdir(parents=True)
+        guide=fonts/'使用说明.md'
+        guide.write_text('Portable published guide\n',encoding='utf-8')
+        manifest={'families':[{'name':'Demo','family':'Demo Sans','use':'Fixture',
+                               'fonts':[{'bytes':1048576}]}]}
+        (fonts/'font_manifest.json').write_text(json.dumps(manifest),encoding='utf-8')
+        output=folder/'outputs'
+        with patch.object(specimen,'FONTS',fonts),patch.object(specimen,'OUT',output), \
+             patch.object(specimen.Image,'new'),patch.object(specimen.ImageDraw,'Draw'), \
+             patch.object(specimen,'font'),patch.object(specimen,'center'):
+            specimen.main()
+        self.assertEqual(guide.read_text(encoding='utf-8'),'Portable published guide\n')
+        note=(output/'字体对比说明.md').read_text(encoding='utf-8')
+        self.assertIn('[字体对比.png](字体对比.png)',note)
+        self.assertIn('1.0 MiB',note)
+        self.assertNotIn(str(folder),note)
+        self.assertNotRegex(note,r'[A-Za-z]:[\\/]')
 
     def test_fresh_default_template_without_original_product_config(self):
         root = self.root / 'template'
@@ -83,6 +117,8 @@ class ReleaseTests(unittest.TestCase):
             names = archive.namelist()
             self.assertIn('LICENSE', names)
             self.assertIn('examples/products.csv', names)
+            self.assertIn('assets/fonts/使用说明.md', names)
+            self.assertIn('assets/fonts/高级字体包说明.md', names)
             self.assertFalse(any(n.startswith(('data/','sources/','outputs/','work/','tools/','models/','.git/')) for n in names))
             manifest = json.loads(archive.read('release-manifest.json'))
             for row in manifest['files']:

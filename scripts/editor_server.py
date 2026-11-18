@@ -1,4 +1,4 @@
-"""Loopback-only product video queue. All work, media and state live beside this script on D:."""
+"""Loopback-only product video queue. All work, media and state live in the project directory."""
 from __future__ import annotations
 
 import argparse
@@ -618,7 +618,7 @@ class Editor:
     def queue_transcription(self,task_id,payload):
         language=speech.language_code(payload.get('language','auto'))
         target=translation.target_code(payload.get('target','zh'))
-        if not speech.ready(): raise ValueError('请先双击 D 盘项目中的“安装语音字幕.bat”。')
+        if not speech.ready(): raise ValueError('请先双击 项目目录中的“安装语音字幕.bat”。')
         if target=='zh' and language!='zh' and not translation.ready(): raise ValueError('请先双击项目中的“安装中文翻译.bat”。')
         with self.lock:
             task=next((t for t in self.state['tasks'] if t['id']==task_id),None)
@@ -840,7 +840,7 @@ class Editor:
             if not source.is_file():
                 raise RuntimeError('素材未下载完成，可能超过 15 分钟/体积限制，或需要登录。请换一个较短视频。')
         if task.get('job_type')=='download':
-            self.update(task,status='downloaded',progress=100,source_path=str(source),message='素材已下载到 D 盘，尚未制作成片。')
+            self.update(task,status='downloaded',progress=100,source_path=str(source),message='素材已下载到本机项目目录，尚未制作成片。')
             return
         config=copy.deepcopy(self.sample) if task['brand'].lower()=='neumann' and task['model']=='U87AI' else {}
         original_title=task.get('original_title') or task['title']
@@ -971,7 +971,7 @@ class Handler(BaseHTTPRequestHandler):
                 if not 0<length<=8*1024*1024:raise ValueError('图片为空或超过 8 MB。')
                 return self.send_json(EDITOR.review.upload_image(upload_image[1],self.rfile.read(length)))
             except (ValueError,TypeError) as exc:return self.send_json({'error':str(exc)},400)
-            except Exception:return self.send_json({'error':'图片保存失败，请检查 D 盘写入权限或剩余空间。'},500)
+            except Exception:return self.send_json({'error':'图片保存失败，请检查项目目录写入权限或所在磁盘剩余空间。'},500)
         if self.path=='/api/imports/preview':
             try:
                 if self.headers.get('Content-Type','').split(';')[0]!='application/octet-stream':

@@ -1,4 +1,4 @@
-"""Fetch a pinned, OFL-licensed font pack and build static export weights on D:.
+"""Fetch a pinned, OFL-licensed font pack and build static export weights in the project directory.
 
 Only this setup utility needs fontTools. Preview/export uses ready-made TTF files.
 Install the build dependency into tools/fonttools-runtime if necessary:

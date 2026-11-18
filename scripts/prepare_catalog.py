@@ -1,4 +1,4 @@
-"""Read the workbook without modifying it; save compact reusable product metadata on D:."""
+"""Read the workbook without modifying it; save compact reusable product metadata in the project directory."""
 import argparse
 import json
 import re

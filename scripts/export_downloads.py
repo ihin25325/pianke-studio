@@ -59,10 +59,10 @@ class ExportDownloads:
             if not items:raise ValueError('所选商品都没有可下载的成片，请先制作；配件跳过或手动完成不会生成视频。')
             self.folder.mkdir(parents=True,exist_ok=True)
             required=sum(i['size'] for i in items)+10*1024*1024
-            if shutil.disk_usage(self.folder).free<required:raise ValueError('D 盘剩余空间不足以保存这批压缩包。')
+            if shutil.disk_usage(self.folder).free<required:raise ValueError('打包目录所在磁盘的剩余空间不足以保存这批压缩包。')
             jid=uuid.uuid4().hex
             job={'id':jid,'status':'building','progress':0,'created_at':now(),'items':items,'skipped':skipped,
-                 'filename':f'商品成片_{datetime.now():%Y%m%d_%H%M%S}_{jid[:6]}.zip','message':'正在 D 盘打包，原成片保持不变。'}
+                 'filename':f'商品成片_{datetime.now():%Y%m%d_%H%M%S}_{jid[:6]}.zip','message':'正在本机项目目录打包，原成片保持不变。'}
             self.e.state['export_batches'].append(job)
             try:self.e.save()
             except Exception:

@@ -20,7 +20,7 @@ def normalize_directory(value):
     if value.startswith(('\\\\','//')) or re.search(r'[*?<>|"\x00]',value):
         raise ValueError('请选择本机磁盘文件夹，不支持网络共享、设备路径或特殊字符。')
     if os.name=='nt' and (not re.match(r'^[A-Za-z]:[\\/]',value) or ':' in value[2:]):
-        raise ValueError('请填写完整路径，例如 D:\\视频成片；不能只填写盘符或相对路径。')
+        raise ValueError('请从资源管理器复制完整文件夹路径；不能只填写盘符或相对路径。')
     path=Path(value)
     if not path.is_absolute() or any(part in {'.','..'} for part in path.parts):
         raise ValueError('请使用不含“..”的完整文件夹路径。')

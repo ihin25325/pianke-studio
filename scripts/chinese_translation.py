@@ -75,7 +75,7 @@ def translate(transcript,target='zh',progress=None,context=None):
     if not original or language=='zh':
         result['translation']={'engine':'identity','source_language':language,'target_language':'zh','api_calls':0,'elapsed_seconds':0}
         return result
-    if not ready(): raise ValueError('本地中文翻译模型尚未就绪，请双击 D 盘项目中的“安装中文翻译.bat”。')
+    if not ready(): raise ValueError('本地中文翻译模型尚未就绪，请双击 项目目录中的“安装中文翻译.bat”。')
     manifest=MODEL/'download_manifest.json'
     fingerprint=hashlib.sha256(manifest.read_bytes()).hexdigest() if manifest.is_file() else 'qwen3-4b-q4km'
     context=context or {}
@@ -126,7 +126,7 @@ def translate(transcript,target='zh',progress=None,context=None):
                 process.kill();process.wait()
                 raise RuntimeError('本机翻译单段超时，已保留日志。可重试或选择较短素材。')
         answer=answer_file.read_text(encoding='utf-8',errors='replace')
-        if code: raise RuntimeError('本地中文翻译失败，请查看 D 盘 work/translation 中的日志。')
+        if code: raise RuntimeError('本地中文翻译失败，请查看 项目目录 work/translation 中的日志。')
         start=answer.find('{')
         if start<0: raise ValueError('中文翻译未返回有效字幕，不会把原文当成翻译。')
         translated,_=json.JSONDecoder().raw_decode(answer[start:])

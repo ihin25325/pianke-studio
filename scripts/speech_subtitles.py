@@ -119,7 +119,7 @@ def group_words(segments,total):
 
 def transcribe(config_file,output_file,language='auto'):
     language_code(language)
-    if not ready(): raise RuntimeError('本地语音模型未准备好，请双击 D 盘项目中的“安装语音字幕.bat”。')
+    if not ready(): raise RuntimeError('本地语音模型未准备好，请双击 项目目录中的“安装语音字幕.bat”。')
     import product_render as renderer
     config=renderer.read_json(Path(config_file))
     video=renderer.resolve_input(config['source'])

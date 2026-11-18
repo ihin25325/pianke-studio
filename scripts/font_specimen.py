@@ -22,6 +22,21 @@ def center(draw,text,y,face,color):
     draw.text(((1280-(box[2]-box[0]))/2,y-box[1]),text,font=face,fill=color)
 
 
+def specimen_notes(manifest):
+    """Build a portable local report without changing the published font guides."""
+    total=sum(f['bytes'] for family in manifest['families'] for f in family['fonts'])
+    count=sum(len(family['fonts']) for family in manifest['families'])
+    lines=['# 本机字体对比记录','',f"本次清单包含 {len(manifest['families'])} 款字体，共 {count} 个文件，约 {total/1024/1024:.1f} MiB。",'',
+           '字体从项目的 assets/fonts 目录加载，不安装到系统字体目录。',
+           '实际效果见同目录的 [字体对比.png](字体对比.png)。', '',
+           '| 字体 | 内部字体名称 | 建议用途 |', '| --- | --- | --- |']
+    for family in manifest['families']:
+        lines.append(f"| {family['name']} | {family['family']} | {family['use']} |")
+    lines += ['', '本次对比使用 Oswald SemiBold 显示英文品牌/型号，思源黑体显示中文商品类别；不会修改工作台已保存的字体设置。', '',
+              '各字体的许可和来源见项目 assets/fonts 下的 OFL 文件与 font_manifest.json。']
+    return '\n'.join(lines)+'\n'
+
+
 def main():
     OUT.mkdir(parents=True,exist_ok=True)
     canvas=Image.new('RGB',(1280,1670),'#f4f2ed')
@@ -47,19 +62,7 @@ def main():
     canvas.save(OUT/'字体对比.png')
     print(OUT/'字体对比.png')
     manifest=json.loads((FONTS/'font_manifest.json').read_text(encoding='utf-8'))
-    total=sum(f['bytes'] for family in manifest['families'] for f in family['fonts'])
-    count=sum(len(family['fonts']) for family in manifest['families'])
-    lines=['# 商品视频字体包','',f"已下载 {len(manifest['families'])} 款字体，共 {count} 个字体文件，约 {total/1024/1024:.1f} MiB。",'',
-           '字体保存在 D 盘本目录，没有安装到 Windows 系统目录。当前视频默认采用第 5 种搭配：Oswald 英文＋思源黑体中文。',
-           '实际效果见 D:\\剪辑视频自动化\\outputs\\字体对比.png。', '',
-           '| 字体 | 内部字体名称 | 建议用途 |', '| --- | --- | --- |']
-    for family in manifest['families']:
-        lines.append(f"| {family['name']} | {family['family']} | {family['use']} |")
-    lines += ['', '当前搭配：Oswald SemiBold 显示英文品牌/型号，思源黑体显示中文商品类别。', '',
-              'Montserrat 与 Oswald 是可变字体，可选择不同粗细；对比图分别使用 700 和 600 字重。两者不含中文字形。', '',
-              '各字体采用 SIL Open Font License 1.1，允许用于商业视频。每个子目录保留 OFL.txt；再分发字体文件时一并保留授权和版权信息。来源链接、下载时间、文件大小与 SHA-256 见 font_manifest.json。', '',
-              '仅下载原始字体文件，未修改字形。视频从 D 盘 assets/fonts/render 私有目录加载，不必复制到 C 盘。']
-    (FONTS/'使用说明.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
+    (OUT/'字体对比说明.md').write_text(specimen_notes(manifest),encoding='utf-8')
 
 
 if __name__=='__main__':

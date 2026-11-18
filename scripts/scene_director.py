@@ -168,7 +168,7 @@ def analyze(source,seconds=30,brand='',model='',allowed=None,progress=None,categ
     report_file=folder/'report.json'
     if report_file.is_file():
         report=json.loads(report_file.read_text(encoding='utf-8'));report['cache_hit']=True;return report
-    if shutil.disk_usage(folder).free<200*1024*1024:raise ValueError('D 盘空间不足 200 MB，请清理工作缓存后再进行画面分析。')
+    if shutil.disk_usage(folder).free<200*1024*1024:raise ValueError('工作目录所在磁盘空间不足 200 MB，请清理工作缓存后再进行画面分析。')
     began=time.monotonic();step=max(1.5,available/120)
     # Decode once, detecting black intervals at video-frame granularity.
     command=[str(FFMPEG),'-hide_banner','-nostdin','-loglevel','info','-i',str(source),'-an',

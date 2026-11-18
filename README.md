@@ -25,7 +25,7 @@
 
 1. [64 位 Python](https://www.python.org/downloads/windows/) 3.11+，推荐 3.12；安装时启用 PATH。无需安装 Codex。
 2. 如需 YouTube 检索/下载，建议安装 [Node.js](https://nodejs.org/) 22+ 并加入 PATH。
-3. 下载源码 ZIP 并解压到自己有写入权限的目录，例如 D 盘工作目录。不要放进 Windows、Program Files 或网盘同步中的只读目录。
+3. 下载源码 ZIP 并解压到自己有写入权限的目录，例如自己的视频工作目录。不要放进 Windows、Program Files 或网盘同步中的只读目录。
 
 然后：
 
@@ -77,6 +77,8 @@ CSV 中 `example.com/pianke-demo.mp4` 是本机合成原片的演示标识，不
 | SnapAny 备用下载 | [国内外素材设置](http://127.0.0.1:8765/sources#snapany)，自己填写独立密钥并选择本地失败后使用；默认关闭 |
 
 云服务不是核心依赖。SnapAny 只解析已有视频链接，不负责商品检索；同一链接可短时复用解析结果。它不能保证下载全部候选视频，成功解析后即使下载失败也可能已扣积分。详见 [SnapAny 接入说明](SnapAny接入说明.md)。
+
+字体说明随源码发布：[基础字体说明](assets/fonts/使用说明.md)、[高级字体包说明](assets/fonts/高级字体包说明.md)。字体文件、下载清单和本机对比图不随源码发布；生成对比图不会覆盖这两份说明。
 
 ## 开发与测试
 

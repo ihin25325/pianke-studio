@@ -1,4 +1,4 @@
-"""Subtitle layout regression tests; optional real-media smoke stays on D:."""
+"""Subtitle layout regression tests; optional real-media smoke stays in project work/."""
 import copy
 import json
 import os

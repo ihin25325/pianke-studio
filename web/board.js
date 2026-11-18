@@ -48,7 +48,7 @@ async function refresh(){
   if(state.loading){state.refreshAgain=true;return;}state.loading=true;
   try{const params=new URLSearchParams({view:state.view,page:state.page,q:state.q,batch:state.batch});const data=await api('/api/board?'+params);state.data=data;state.page=data.page;renderBoard(data);
     if(location.hash.startsWith('#task-')){const pid=data.task_map[location.hash.slice(6)];if(pid){history.replaceState(null,'',location.pathname);await openDetail(pid);}}
-  }catch(error){$('connection').textContent='连接中断 · 请双击 D 盘的「启动工作台.bat」';if(!state.data)$('rows').innerHTML=`<tr><td colspan="6" class="empty"><strong>暂时没有连上本机服务</strong>${esc(error.message)}<br>请重新启动工作台后刷新。</td></tr>`;}finally{state.loading=false;if(state.refreshAgain){state.refreshAgain=false;refresh();}}
+  }catch(error){$('connection').textContent='连接中断 · 请双击 项目目录中的「启动工作台.bat」';if(!state.data)$('rows').innerHTML=`<tr><td colspan="6" class="empty"><strong>暂时没有连上本机服务</strong>${esc(error.message)}<br>请重新启动工作台后刷新。</td></tr>`;}finally{state.loading=false;if(state.refreshAgain){state.refreshAgain=false;refresh();}}
 }
 async function changeView(view){state.view=view;state.page=1;state.selected.clear();await refresh();}
 async function jobs(ids,job){

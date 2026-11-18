@@ -1,4 +1,4 @@
-"""Offline regression tests; isolated state under D:/.../work, no media downloads."""
+"""Offline regression tests; isolated state under project work/, no media downloads."""
 import json
 from pathlib import Path
 import tempfile
